@@ -6,8 +6,8 @@ input,button{padding:11px;border-radius:9px;border:1px solid #d5dbe6}button{back
 <script>
 let pass="";
 async function load(){pass=document.getElementById("pw").value;render(await get())}
-async function get(){let r=await fetch("/api/admin",{headers:{"X-Admin-Password":pass}});if(!r.ok){alert("Invalid password");return[]}return r.json()}
+async function get(){let r=await fetch("https://tight-tooth-9b22.venkatmovva2727.workers.dev/api/admin",{headers:{"X-Admin-Password":pass}});if(!r.ok){alert("Invalid password");return[]}return r.json()}
 function render(a){let l=document.getElementById("list");l.innerHTML=a.map(x=>`<div class="card row"><div><b>${esc(x.name)}</b><br>${esc(x.email)}<br>${esc(x.internship)}</div><div><b>IP</b><br>${esc(x.ip)}</div><div><b>Location</b><br>${x.location?x.location.latitude+", "+x.location.longitude:"Not provided"}</div><div><img src="${x.photo}" alt="Photo"></div><div><button onclick="del('${x.id}')">Delete</button></div></div>`).join("")||"<div class=card>No temporary submissions.</div>"}
-async function del(id){await fetch("/api/admin/"+id,{method:"DELETE",headers:{"X-Admin-Password":pass}});render(await get())}
+async function del(id){await fetch("https://tight-tooth-9b22.venkatmovva2727.workers.dev/api/admin/"+id,{method:"DELETE",headers:{"X-Admin-Password":pass}});render(await get())}
 function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]))}
 </script></body></html>
