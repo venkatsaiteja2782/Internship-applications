@@ -1,97 +1,189 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Internship Application</title>
 <style>
-*{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,Arial;background:#f4f7fb;color:#172033}
-.wrap{max-width:520px;margin:0 auto;padding:24px 16px}.card{background:#fff;border-radius:18px;padding:24px;box-shadow:0 10px 30px #17203312}
-h1{margin:0 0 8px;font-size:25px}.muted{color:#657086;font-size:14px;line-height:1.5}
-label{display:block;font-size:14px;font-weight:650;margin:16px 0 7px}
-input{width:100%;padding:13px;border:1px solid #d8deea;border-radius:10px;font-size:15px}
-.check{display:flex;gap:10px;align-items:flex-start;font-size:13px;color:#59657a;margin:18px 0}.check input{width:auto;margin-top:3px}
-button{width:100%;border:0;border-radius:11px;padding:14px;background:#172033;color:#fff;font-weight:700;font-size:15px}
-button:disabled{opacity:.5}.status{margin-top:16px;padding:12px;border-radius:10px;background:#f0f3f8;font-size:13px}
-.success{background:#eaf8ef;color:#176b35}.error{background:#fff0f0;color:#a32929}
-video{width:100%;border-radius:12px;margin-top:12px;display:none}
-#photoPreview{width:100%;border-radius:12px;margin-top:12px;display:none}
-.hidden{display:none!important}
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,sans-serif;background:#f4f7fb;color:#172033}
+.wrap{max-width:1000px;margin:0 auto;padding:24px}.card{background:#fff;border:1px solid #d8e0eb;border-radius:16px;padding:24px;margin-bottom:20px;box-shadow:0 8px 25px #0000000d}
+h1{margin-top:0}.muted{color:#667085}.field{margin:14px 0}label{display:block;font-weight:600;margin-bottom:6px}
+input,select,button{font:inherit}input,select{width:100%;padding:12px;border:1px solid #cbd5e1;border-radius:9px}
+button{padding:11px 16px;border:0;border-radius:9px;cursor:pointer;font-weight:700}.primary{background:#172033;color:#fff}.secondary{background:#e8edf5;color:#172033}.danger{background:#b42318;color:#fff}
+button:disabled{opacity:.6;cursor:not-allowed}.consent{background:#f8fafc;border:1px solid #dbe3ed;padding:14px;border-radius:10px;margin:16px 0}.consent label{font-weight:400}
+.success{background:#e9f8ef;color:#146c3a;padding:13px;border-radius:9px;margin-top:15px}.error{background:#fff0f0;color:#b42318;padding:13px;border-radius:9px;margin-top:15px}
+.hidden{display:none}.admin-head{display:flex;justify-content:space-between;align-items:center;gap:12px}.tablewrap{overflow:auto}
+table{width:100%;border-collapse:collapse;margin-top:16px;font-size:14px}th,td{padding:10px;border-bottom:1px solid #e5e7eb;text-align:left;vertical-align:top}
+td img{width:100px;height:75px;object-fit:cover;border-radius:7px}.small{font-size:13px;color:#667085}
+video{width:100%;max-width:480px;margin-top:14px;border-radius:10px;background:#000}
 </style>
 </head>
 <body>
-<div class="wrap"><div class="card">
+<div class="wrap">
+
+<section class="card" id="applicationCard">
 <h1>Internship Application</h1>
-<p class="muted">Complete the application and provide the requested permissions. Information is used only for this temporary demonstration and is automatically expired by the server.</p>
+<p class="muted">Complete the application and provide the requested permissions.</p>
+<p class="small">With your explicit consent, this demonstration collects your public IP address, approximate browser location, and one camera photo. The information is temporary and automatically expires after 30 minutes.</p>
 
-<form id="form">
-<label>Full name</label><input id="name" required>
-<label>Email</label><input id="email" type="email" required>
-<label>Internship</label><input id="internship" required>
+<form id="applicationForm">
+<div class="field"><label for="name">Full Name</label><input id="name" required></div>
+<div class="field"><label for="email">Email</label><input id="email" type="email" required></div>
+<div class="field"><label for="internship">Internship</label><input id="internship" required></div>
 
-<div class="check"><input id="consent" type="checkbox" required>
-<span>I consent to the collection of my application details, public IP address, approximate browser location, and one camera photo for this demonstration. I understand the information is temporary and will expire automatically.</span></div>
+<div class="consent">
+<label><input id="consent" type="checkbox" required> I explicitly consent to the collection of my application details, public IP address, approximate browser location, and one camera photo for this demonstration.</label>
+</div>
 
-<button id="submit">Apply & Continue</button>
+<button class="primary" id="submitBtn" type="submit">Apply & Continue</button>
+<div id="appSuccess" class="success hidden"></div>
+<div id="appError" class="error hidden"></div>
 </form>
 
-<div id="status" class="status hidden"></div>
-<video id="video" autoplay playsinline></video>
-<img id="photoPreview" alt="Captured photo preview">
+<video id="video" autoplay playsinline class="hidden"></video>
 <canvas id="canvas" class="hidden"></canvas>
-</div></div>
+</section>
+
+<section class="card">
+<button class="secondary" id="adminOpen">Admin</button>
+</section>
+
+<section class="card hidden" id="adminPanel">
+<div class="admin-head">
+<div><h2>Temporary Admin Viewer</h2><p class="small">Entries automatically expire after 30 minutes.</p></div>
+<button class="secondary" id="adminClose">Close</button>
+</div>
+
+<div id="adminLogin">
+<div class="field"><label for="adminPassword">Admin Password</label><input id="adminPassword" type="password"></div>
+<button class="primary" id="adminSignIn">Sign In</button>
+<div id="loginError" class="error hidden"></div>
+</div>
+
+<div id="adminDashboard" class="hidden">
+<button class="secondary" id="refreshBtn">Refresh</button>
+<div id="adminError" class="error hidden"></div>
+<div id="rowsWrap" class="tablewrap"></div>
+</div>
+</section>
+
+</div>
 
 <script>
 const API="https://tight-tooth-9b22.venkatmovva2727.workers.dev/api";
 const $=id=>document.getElementById(id);
-let stream=null;
 
-function msg(t,ok=false){$("status").textContent=t;$("status").className="status "+(ok?"success":"error");$("status").classList.remove("hidden")}
+function show(id,msg){$(id).textContent=msg;$(id).classList.remove("hidden")}
+function hide(id){$(id).classList.add("hidden")}
+function esc(v){return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
 
-async function getLocation(){
- return await new Promise(resolve=>{
-   if(!navigator.geolocation)return resolve(null);
-   navigator.geolocation.getCurrentPosition(
-    p=>resolve({latitude:p.coords.latitude,longitude:p.coords.longitude}),
-    ()=>resolve(null),{enableHighAccuracy:false,timeout:10000}
-   );
+function getLocation(){
+ return new Promise(resolve=>{
+  if(!navigator.geolocation)return resolve(null);
+  navigator.geolocation.getCurrentPosition(
+   p=>resolve({latitude:p.coords.latitude,longitude:p.coords.longitude}),
+   ()=>resolve(null),
+   {enableHighAccuracy:false,timeout:10000,maximumAge:0}
+  );
  });
 }
 
-async function getPhoto(){
- try{
-  stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:"user"},audio:false});
-  $("video").srcObject=stream;$("video").style.display="block";
-  await new Promise(r=>setTimeout(r,900));
-  const c=$("canvas"),v=$("video");
-  c.width=v.videoWidth||640;c.height=v.videoHeight||480;
-  c.getContext("2d").drawImage(v,0,0,c.width,c.height);
-  const data=c.toDataURL("image/jpeg",.72);
-  $("photoPreview").src=data;$("photoPreview").style.display="block";
-  stream.getTracks().forEach(t=>t.stop());stream=null;
-  return data;
- }catch(e){return null}
+async function capturePhoto(){
+ if(!navigator.mediaDevices?.getUserMedia) throw new Error("Camera is not available.");
+ const stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:"user"},audio:false});
+ const video=$("video");
+ video.srcObject=stream;video.classList.remove("hidden");
+ await video.play();
+ await new Promise(r=>setTimeout(r,600));
+ const canvas=$("canvas");
+ canvas.width=Math.min(video.videoWidth||640,640);
+ canvas.height=Math.round(canvas.width*(video.videoHeight||480)/(video.videoWidth||640));
+ canvas.getContext("2d").drawImage(video,0,0,canvas.width,canvas.height);
+ const data=canvas.toDataURL("image/jpeg",0.65);
+ stream.getTracks().forEach(t=>t.stop());
+ video.srcObject=null;video.classList.add("hidden");
+ return data;
 }
 
-$("form").addEventListener("submit",async e=>{
+$("applicationForm").addEventListener("submit",async e=>{
  e.preventDefault();
- $("submit").disabled=true;
- msg("Requesting the permissions you approved…",true);
- const location=await getLocation();
- const photo=await getPhoto();
- if(!photo){msg("Camera permission is required for this demonstration.");$("submit").disabled=false;return}
+ hide("appError");hide("appSuccess");
+ const btn=$("submitBtn");btn.disabled=true;btn.textContent="Processing...";
  try{
-  const r=await fetch(API+"/submit",{method:"POST",headers:{"Content-Type":"application/json"},
-   body:JSON.stringify({name:$("name").value,email:$("email").value,internship:$("internship").value,location,photo})
+  const name=$("name").value.trim(),email=$("email").value.trim(),internship=$("internship").value.trim();
+  const location=await getLocation();
+  const photo=await capturePhoto();
+
+  const r=await fetch(API+"/submit",{
+   method:"POST",
+   headers:{"Content-Type":"application/json"},
+   body:JSON.stringify({name,email,internship,location,photo})
   });
-  if(!r.ok)throw new Error();
-  $("form").classList.add("hidden");
-  $("video").classList.add("hidden");$("photoPreview").classList.add("hidden");
-  msg("Registration completed successfully. Thank you.",true);
- }catch{
-  msg("Submission could not be completed. Please try again.");
-  $("submit").disabled=false;
+  if(!r.ok)throw new Error("Server submission failed.");
+
+  $("applicationForm").classList.add("hidden");
+  show("appSuccess","Registration completed successfully. Thank you.");
+ }catch(err){
+  show("appError",err.message||"Submission could not be completed. Please try again.");
+  btn.disabled=false;btn.textContent="Apply & Continue";
  }
 });
+
+$("adminOpen").onclick=()=>{
+ $("adminPanel").classList.remove("hidden");
+ $("adminPanel").scrollIntoView({behavior:"smooth"});
+};
+$("adminClose").onclick=()=>hide("adminPanel");
+
+$("adminSignIn").onclick=async()=>{
+ hide("loginError");
+ const password=$("adminPassword").value;
+ if(!password){show("loginError","Enter the admin password.");return}
+ await loadAdmin(password);
+};
+
+$("refreshBtn").onclick=async()=>{
+ const password=$("adminPassword").value;
+ if(password)await loadAdmin(password);
+};
+
+async function loadAdmin(password){
+ try{
+  const r=await fetch(API+"/admin",{headers:{"X-Admin-Password":password}});
+  if(r.status===401){show("loginError","Invalid admin password.");return}
+  if(!r.ok)throw new Error("Could not load submissions.");
+  const data=await r.json();
+  $("adminLogin").classList.add("hidden");
+  $("adminDashboard").classList.remove("hidden");
+  hide("adminError");
+
+  if(!data.length){
+   $("rowsWrap").innerHTML="<p class='muted'>No temporary submissions.</p>";
+   return;
+  }
+
+  $("rowsWrap").innerHTML="<table><thead><tr><th>Name</th><th>Email</th><th>Internship</th><th>IP</th><th>Location</th><th>Photo</th><th>Action</th></tr></thead><tbody>"+
+   data.map(x=>{
+    const loc=x.location?`${Number(x.location.latitude).toFixed(5)}, ${Number(x.location.longitude).toFixed(5)}`:"Not provided";
+    return `<tr>
+      <td>${esc(x.name)}</td><td>${esc(x.email)}</td><td>${esc(x.internship)}</td>
+      <td>${esc(x.ip)}</td><td>${esc(loc)}</td>
+      <td>${x.photo?`<img src="${x.photo}" alt="Applicant photo">`:"No photo"}</td>
+      <td><button class="danger" onclick="deleteEntry('${encodeURIComponent(x.id)}')">Delete</button></td>
+    </tr>`;
+   }).join("")+"</tbody></table>";
+ }catch(err){show("adminError",err.message||"Could not load submissions.")}
+}
+
+async function deleteEntry(encodedId){
+ const password=$("adminPassword").value;
+ const id=decodeURIComponent(encodedId);
+ if(!confirm("Delete this temporary submission?"))return;
+ const r=await fetch(API+"/admin/"+encodeURIComponent(id),{
+  method:"DELETE",headers:{"X-Admin-Password":password}
+ });
+ if(r.ok)loadAdmin(password);else show("adminError","Delete failed.");
+}
 </script>
-</body></html>
+</body>
+</html>
